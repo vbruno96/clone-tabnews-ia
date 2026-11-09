@@ -1,231 +1,169 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useState } from "react";
+import ReactConfetti from "react-confetti";
 
 export default function Home() {
-  const [modalVisible, setModalVisible] = useState(false);
-  const btnNaoRef = useRef(null);
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [totalContents, setTotalContents] = useState(null);
+  const [loadingContents, setLoadingContents] = useState(true);
 
-  function moveNaoButton() {
-    const btn = btnNaoRef.current;
-    if (!btn) return;
-    const w = btn.offsetWidth;
-    const h = btn.offsetHeight;
-    const padding = 16;
-    const maxX = window.innerWidth - w - padding;
-    const maxY = window.innerHeight - h - padding;
-    const x = Math.max(padding, Math.random() * maxX);
-    const y = Math.max(padding, Math.random() * maxY);
-    btn.style.position = "fixed";
-    btn.style.left = x + "px";
-    btn.style.top = y + "px";
-    btn.style.zIndex = "8888";
-  }
+  // Confete ao montar
+  useEffect(() => {
+    function updateSize() {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    }
+    updateSize();
+    setShowConfetti(true);
+    window.addEventListener("resize", updateSize);
+    const timer = setTimeout(() => setShowConfetti(false), 6000);
+    return () => {
+      window.removeEventListener("resize", updateSize);
+      clearTimeout(timer);
+    };
+  }, []);
+
+  // Busca total de conteúdos via API route (server-side, sem CORS)
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const res = await fetch("/api/tabnews-stats");
+        const data = await res.json();
+        setTotalContents(
+          data.totalContents !== null
+            ? data.totalContents.toLocaleString("pt-BR")
+            : null,
+        );
+      } catch {
+        setTotalContents(null);
+      } finally {
+        setLoadingContents(false);
+      }
+    }
+    fetchStats();
+  }, []);
 
   return (
     <>
-      {/* ════════════════════ CONTRATO ════════════════════ */}
-      <div className="contract-wrapper">
-        <div className="header">
-          <span className="seal">⚖️🎮⚖️</span>
-          <h1>
-            Contrato Oficial de Não Perturbação
-            <br />e Proteção ao Direito de Jogar
-          </h1>
-          <p className="subtitle">
-            (Documento de Extrema Importância — Leia com respeito)
-          </p>
-          <p className="doc-number">
-            Instrumento Particular Nº 001/2025 — Vice-City Cartório Digital
-          </p>
-        </div>
+      {showConfetti && (
+        <ReactConfetti
+          width={windowSize.width}
+          height={windowSize.height}
+          numberOfPieces={350}
+          recycle={false}
+          style={{ position: "fixed", top: 0, left: 0, zIndex: 9999 }}
+        />
+      )}
 
-        {/* PARTES */}
-        <div className="partes">
-          <p>
-            <strong>CONTRATANTE:</strong> Maria Paula Vilarina Santos, pessoa
-            física, portadora de boas intenções e plena consciência das
-            consequências de descumprir este contrato.
-          </p>
-          <p>
-            <strong>CONTRATADO:</strong> Bruno, o Escolhido pelos Deuses do
-            Joystick, herói digital em tempo integral e lendário destruidor de
-            missões impossíveis.
-          </p>
-        </div>
+      {/* ── Header ── */}
+      <header className="tn-header">
+        <div className="tn-container tn-header-inner">
+          <a href="/" className="tn-logo" aria-label="TabNews">
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 32 32"
+              fill="none"
+              aria-hidden="true"
+            >
+              <rect width="32" height="32" rx="6" fill="#2da44e" />
+              <text
+                x="50%"
+                y="54%"
+                dominantBaseline="middle"
+                textAnchor="middle"
+                fill="white"
+                fontSize="16"
+                fontWeight="bold"
+                fontFamily="monospace"
+              >
+                TN
+              </text>
+            </svg>
+            <span>TabNews</span>
+          </a>
 
-        {/* § 1 */}
-        <div className="clausula">
-          <h2>§ 1º — Do Objeto do Contrato</h2>
-          <p>
-            O presente instrumento tem como objeto garantir ao{" "}
-            <strong>CONTRATADO</strong> pleno, irrestrito e sagrado direito de
-            jogar <em>GTA VI</em> pelo período de{" "}
-            <strong>7 (sete) dias corridos</strong>, sem qualquer forma de
-            interrupção, perturbação, questionamento ou julgamento moral — seja
-            ele expresso, tácito, presencial ou via mensagem de WhatsApp com
-            pontinhos reticências.
-          </p>
+          <nav className="tn-nav">
+            <a
+              href="https://www.tabnews.com.br"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="tn-nav-link"
+            >
+              Site oficial
+            </a>
+          </nav>
         </div>
+      </header>
 
-        {/* § 2 */}
-        <div className="clausula">
-          <h2>§ 2º — Das Obrigações da Parte Contratante</h2>
-          <ul>
-            <li>
-              🚫 Não fazer perguntas do tipo <em>&#34;você vai sair hoje?&#34;</em>{" "}
-              ou <em>&#34;está na hora de dormir?&#34;</em>
-            </li>
-            <li>
-              🚫 Não comentar sobre quantas horas foram jogadas nem fazer cara de
-              julgamento
-            </li>
-            <li>
-              🍕 Manter estoque mínimo de salgadinhos, energético e pizza
-              disponível
-            </li>
-            <li>
-              🔕 Silenciar qualquer notificação ou campainha que possa distrair o
-              CONTRATADO
-            </li>
-            <li>
-              💬 Aceitar respostas monossilábicas como forma válida de comunicação
-            </li>
-            <li>
-              😶 Não comentar sobre o estado do cabelo ou da roupa do CONTRATADO
-              durante o período
-            </li>
-          </ul>
-        </div>
+      {/* ── Conteúdo principal ── */}
+      <main className="tn-container tn-main">
+        <div className="tn-under-construction">
+          {/* Aviso de construção */}
+          <div className="tn-alert">
+            <span className="tn-alert-icon" aria-hidden="true">
+              🚧
+            </span>
+            <div className="tn-alert-body">
+              <strong>Em construção</strong>
+              <p>
+                Estamos neste exato momento reconstruindo o TabNews, um lugar na
+                internet para quem trabalha com tecnologia e precisa consumir
+                conteúdos com o valor concreto.
+              </p>
+            </div>
+          </div>
 
-        {/* § 3 */}
-        <div className="clausula">
-          <h2>§ 3º — Das Atividades Permitidas ao Contratado</h2>
-          <ul>
-            <li>✅ Roubar carros virtuais sem qualquer culpa existencial</li>
-            <li>
-              ✅ Causar caos em ambiente digital controlado e juridicamente
-              protegido
-            </li>
-            <li>✅ Ignorar ligações com a consciência absolutamente limpa</li>
-            <li>
-              ✅ Soltar palavrões de emoção em volumes considerados razoáveis
-            </li>
-            <li>✅ Comer pizza fria diretamente da caixa, sem talheres</li>
-            <li>
-              ✅ Repetir a mesma missão 47 vezes sem ser questionado sobre isso
-            </li>
-          </ul>
-        </div>
+          {/* Estatísticas */}
+          <div className="tn-stats-box">
+            <h2 className="tn-stats-title">📊 Estatísticas do TabNews</h2>
 
-        {/* § 4 */}
-        <div className="clausula">
-          <h2>§ 4º — Das Penalidades por Descumprimento</h2>
-          <p>
-            O descumprimento deste contrato sujeitará a{" "}
-            <strong>CONTRATANTE</strong> a:
-          </p>
-          <ul>
-            <li>
-              🎬 Ouvir o relato completo de todas as missões mais difíceis, com
-              comentário tático detalhado
-            </li>
-            <li>
-              👤 Ser eternamente referenciada como personagem NPC no próximo
-              playthrough
-            </li>
-            <li>
-              😤 Vergonha perpétua perante toda a comunidade gamer conhecida e
-              futura
-            </li>
-            <li>
-              🎮 Ser obrigada a assistir à speedrun mais longa já registrada, sem
-              intervalo
-            </li>
-          </ul>
-        </div>
+            <div className="tn-stat-row">
+              <span className="tn-stat-label">Total de conteúdos publicados</span>
+              <span className="tn-stat-value">
+                {loadingContents ? (
+                  <span className="tn-skeleton" aria-label="Carregando…" />
+                ) : totalContents !== null ? (
+                  totalContents
+                ) : (
+                  <span className="tn-stat-unavailable">
+                    Indisponível no momento
+                  </span>
+                )}
+              </span>
+            </div>
+          </div>
 
-        {/* § 5 */}
-        <div className="clausula">
-          <h2>§ 5º — Da Vigência</h2>
-          <p>
-            Este contrato entra em vigor no exato momento do primeiro boot do
-            jogo e expira automaticamente ao término de{" "}
-            <strong>7 (sete) dias corridos</strong> — ou quando o CONTRATADO,
-            por livre e espontânea vontade, decidir que já explorou o suficiente
-            o mapa de Vice City (o que vier depois, sem pressão).
-          </p>
+          {/* CTA para o site oficial */}
+          <div className="tn-cta">
+            <a
+              href="https://www.tabnews.com.br"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="tn-btn-primary"
+            >
+              Acessar o TabNews oficial →
+            </a>
+          </div>
         </div>
+      </main>
 
-        {/* § 6 */}
-        <div className="clausula">
-          <h2>§ 6º — Do Foro Competente</h2>
-          <p>
-            Fica eleito o foro da Sala de Estar, Sofá — Lado Esquerdo, como
-            competente para dirimir quaisquer conflitos oriundos do presente
-            instrumento, com exclusão de qualquer outro, por mais privilegiado
-            que seja.
-          </p>
+      {/* ── Footer ── */}
+      <footer className="tn-footer">
+        <div className="tn-container">
+          <span>
+            Feito com ❤️ como parte do{" "}
+            <a
+              href="https://curso.dev"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              curso.dev
+            </a>
+          </span>
         </div>
-
-        {/* ASSINATURA */}
-        <div className="assinatura">
-          <p>
-            Local: <span className="linha"></span> &nbsp; Data: _____ / _____ /
-            _________
-          </p>
-          <p style={{ marginTop: "0.8rem" }}>
-            Assinatura da Contratante:{" "}
-            <span className="linha" style={{ width: "260px" }}></span>
-          </p>
-          <p
-            style={{
-              marginTop: "0.5rem",
-              fontSize: "0.85rem",
-              fontStyle: "italic",
-              color: "#8a6a3a",
-            }}
-          >
-            Maria Paula Vilarina Santos — Parte Contratante
-          </p>
-        </div>
-
-        {/* BOTÕES */}
-        <div className="buttons-area">
-          <button
-            className="btn btn-sim"
-            onClick={() => setModalVisible(true)}
-          >
-            ✅ Sim, eu aceito
-          </button>
-          <button
-            ref={btnNaoRef}
-            className="btn btn-nao"
-            onMouseEnter={moveNaoButton}
-          >
-            ❌ Não
-          </button>
-        </div>
-      </div>
-
-      {/* ════════════════════ MODAL ════════════════════ */}
-      <div
-        className={`modal-overlay${modalVisible ? " visible" : ""}`}
-        onClick={(e) => e.target === e.currentTarget && setModalVisible(false)}
-      >
-        <div className="modal-card">
-          <span className="modal-emoji">😄🎮🥳</span>
-          <h2>I love ❤️</h2>
-          <p>
-            Contrato assinado com sucesso!
-            <br />
-            Boa sorte, Bruno — o Vice City é seu! 🏝️
-          </p>
-          <button className="btn-fechar" onClick={() => setModalVisible(false)}>
-            Fechar
-          </button>
-        </div>
-      </div>
+      </footer>
     </>
   );
 }

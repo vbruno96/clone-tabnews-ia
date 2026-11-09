@@ -1,27 +1,17 @@
-import { Cinzel, EB_Garamond } from "next/font/google";
 import "./globals.css";
 
-const cinzel = Cinzel({
-  subsets: ["latin"],
-  weight: ["700", "900"],
-  variable: "--font-cinzel",
-});
-
-const ebGaramond = EB_Garamond({
-  subsets: ["latin"],
-  weight: ["400", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-eb-garamond",
-});
-
 export const metadata = {
-  title: "Contrato Oficial — GTA VI",
+  title: "TabNews — Em Construção",
+  description:
+    "Estamos reconstruindo o TabNews, um lugar na internet para quem trabalha com tecnologia.",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pt-BR" className={`${cinzel.variable} ${ebGaramond.variable}`}>
+    <html lang="pt-BR">
       <body>{children}</body>
     </html>
   );
 }
+
+
